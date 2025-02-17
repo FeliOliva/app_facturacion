@@ -3,7 +3,9 @@ const router = express.Router();
 const negocioController = require("../controllers/negocioController");
 const { verifyToken } = require("../auth");
 
-router.get("/negocios", verifyToken, negocioController.getNegocios);
-router.post("/negocios", verifyToken, negocioController.addNegocio);
-
+router.get("/negocio", verifyToken, negocioController.getNegocios);
+router.post("/negocio", verifyToken, negocioController.addNegocio);
+router.put("/negocio/:id", verifyToken, negocioController.updateNegocio);
+router.delete("/negocio/:id", verifyToken, negocioController.deleteNegocio);
+router.post("/negocio/:id", verifyToken, negocioController.upNegocio);
 module.exports = router;

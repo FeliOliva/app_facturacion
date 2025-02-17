@@ -2,6 +2,7 @@ const express = require("express");
 require("dotenv").config();
 const { generateToken, verifyToken } = require("./auth");
 const { getUserByUsername } = require("./db");
+const { prisma } = require("./db");
 const bcrypt = require("bcrypt");
 
 const app = express();
@@ -25,16 +26,15 @@ app.post("/login", async (req, res) => {
     }
 
     try {
-        const user = await getUserByUsername(usuario);  // <-- Pasa "usuario", no "username"
-        if (!user) {
+        const usuarios = await prisma.usuario.findMany();
+        if (!usuarios) {
             return res.status(401).json({ error: "Usuario no encontrado" });
         }
-
-        if (password !== user.password) {  // <-- Comparación simple, solo si las contraseñas no están encriptadas
+        if (password !== usuarios[0].password) {  // <-- Comparación simple, solo si las contraseñas no están encriptadas
             return res.status(401).json({ error: "Credenciales incorrectas" });
         }
 
-        const token = generateToken({ id: user.id, usuario: user.usuario });
+        const token = generateToken({ id: usuarios.id, usuario: usuarios.usuario });
         res.json({ token });
     } catch (error) {
         console.error("Error al autenticar:", error);

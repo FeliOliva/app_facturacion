@@ -5,3 +5,4 @@ services:
     image: redis
     ports:
       - 6379:6379
+    restart: always  # Esta línea garantiza que el contenedor se reinicie automáticamente

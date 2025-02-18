@@ -35,7 +35,6 @@ const getClientById = async (id) => {
 
 const addClient = async (data) => {
     try {
-        console.log("cliente: ", data)
         return await prisma.cliente.create({ data })
     } catch (error) {
         console.error("Error consultando clientes:", error);
@@ -45,9 +44,6 @@ const addClient = async (data) => {
 
 const updateClient = async (id, data) => {
     try {
-        console.log("Actualizando cliente con ID:", id);
-        console.log("Datos recibidos:", data);
-
         return await prisma.cliente.update({
             where: { id: parseInt(id) },
             data
@@ -58,24 +54,15 @@ const updateClient = async (id, data) => {
     }
 };
 
-
-const deleteClient = async (id) => {
+const updateClienteStatus = async (id, estado) => {
     try {
-        const [rows] = await pool.execute("update cliente set estado = 0 where id = ?", [id]);
-        return rows;
+        return await prisma.cliente.update({
+            where: { id: parseInt(id) },
+            data: { estado },
+        });
     } catch (error) {
-        console.error("Error consultando clientes:", error);
+        console.error("Error actualizando el estado de cliente:", error);
         throw error;
     }
 }
-
-const upClient = async (id) => {
-    try {
-        const [rows] = await pool.execute("update cliente set estado = 1 where id = ?", [id]);
-        return rows;
-    } catch (error) {
-        console.error("Error consultando clientes:", error);
-        throw error;
-    }
-}
-module.exports = { getClients, addClient, updateClient, deleteClient, upClient, getClientById };
+module.exports = { getClients, addClient, updateClient, updateClienteStatus, getClientById };

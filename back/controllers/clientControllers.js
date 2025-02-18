@@ -16,7 +16,7 @@ const getClients = async (req, res) => {
         //Verificar si los datos están en caché
         const cachedData = await redisClient.get(cacheKey);
         if (cachedData) {
-            return res.status(200).json(JSON.parse(cachedData)); // 🚀 Retorna la caché
+            return res.status(200).json(JSON.parse(cachedData)); // Retorna la caché
         }
 
         //Consultar la base de datos con Prisma
@@ -56,10 +56,11 @@ const addClient = async (req, res) => {
         if (!nombre || !apellido || !negocioId || editable === undefined) {
             return res.status(400).json({ error: "Todos los campos son obligatorios" });
         }
-        // Validar que editable sea 0 o 1
-        const editableBoolean = editable === 1; // Si editable es 1 -> true, si es 0 -> false
-
-        const newClient = await clientModel.addClient({ nombre, apellido, negocioId, telefono, editable: editableBoolean });
+        const keys = await redisClient.keys("clients:*");
+        if (keys.length > 0) {
+            await redisClient.del(keys);
+        }
+        const newClient = await clientModel.addClient({ nombre, apellido, negocioId, telefono, editable });
         res.json(newClient);
     }
     catch (error) {
@@ -88,16 +89,19 @@ const updateClient = async (req, res) => {
         if (!nombre || !apellido || !negocioId) {
             return res.status(400).json({ error: "Todos los campos son obligatorios" });
         }
+        await redisClient.del(`clients:${id}`);
 
-        // Convertir editable a booleano
-        const editableBoolean = editable === 1; // Si editable es 1 -> true, si es 0 -> false
+        const keys = await redisClient.keys("cliens:*");
+        if (keys.length > 0) {
+            await redisClient.del(keys);
+        }
 
         await clientModel.updateClient(id, {
             nombre,
             apellido,
             negocioId,
             telefono,
-            editable: editableBoolean
+            editable,
         });
 
         res.status(200).json({ message: "Cliente actualizado correctamente" });
@@ -113,7 +117,13 @@ const deleteClient = async (req, res) => {
         if (!id) {
             return res.status(400).json({ error: "El id es obligatorio" });
         }
-        const deletedClient = await clientModel.deleteClient(id);
+        await redisClient.del(`clients:${id}`);
+
+        const keys = await redisClient.keys("clients:*");
+        if (keys.length > 0) {
+            await redisClient.del(keys);
+        }
+        const deletedClient = await clientModel.updateClienteStatus(id, 0);
         res.json(deletedClient);
     } catch (error) {
         console.error("Error al desactivar el cliente:", error);
@@ -126,8 +136,14 @@ const upClient = async (req, res) => {
         if (!id) {
             return res.status(400).json({ error: "El id es obligatorio" });
         }
-        const deletedClient = await clientModel.upClient(id);
-        res.json(deletedClient);
+        await redisClient.del(`clients:${id}`);
+
+        const keys = await redisClient.keys("clients:*");
+        if (keys.length > 0) {
+            await redisClient.del(keys);
+        }
+        const upClient = await clientModel.updateClienteStatus(id, 1);
+        res.json(upClient);
     } catch (error) {
         console.error("Error al Activar el cliente:", error);
         res.status(500).json({ error: "Error al activar el cliente" });

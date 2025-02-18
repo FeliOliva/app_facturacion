@@ -10,8 +10,13 @@ const PORT = process.env.PORT;
 
 
 //ROUTES
-const clientsRoutes = require("./routes/routesClientes");
+const clientsRoutes = require("./routes/clienteRoutes");
 const negociosRoutes = require("./routes/negocioRoutes");
+const rubrosRoutes = require("./routes/rubroRoutes");
+const subRubrosRoutes = require("./routes/subRubroRoutes");
+const productsRoutes = require("./routes/productsRoutes");
+const ventaRoutes = require("./routes/ventasRoutes");
+
 
 
 
@@ -43,7 +48,7 @@ app.post("/login", async (req, res) => {
 });
 
 
-app.use("/api", verifyToken, clientsRoutes, negociosRoutes);
+app.use("/api", verifyToken, clientsRoutes, negociosRoutes, rubrosRoutes, subRubrosRoutes, productsRoutes, ventaRoutes);
 
 
 app.listen(PORT, () => {

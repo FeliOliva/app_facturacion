@@ -1,52 +1,60 @@
-const { pool } = require("../db"); // Importas el pool
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-const getNegocios = async () => {
+const getNegocios = async (limit, page) => {
     try {
-        const [rows] = await pool.execute("SELECT * FROM negocio");
-        return rows;
+        const offset = (page - 1) * limit;
+        const negocios = await prisma.negocio.findMany({
+            skip: offset,
+            take: limit
+        })
+        const totalNegocios = await prisma.negocio.count();
+        return {
+            negocios,
+            total: totalNegocios,
+            totalPages: Math.ceil(totalNegocios / limit),
+            currentPage: page
+        };
     } catch (error) {
         console.error("Error consultando negocios:", error);
-        throw error;
+        throw new Error("Error al obtener los negocios");
     }
 };
-
-const addNegocio = async ({ nombre, direccion }) => {
+const getNegocioById = async (id) => {
     try {
-        const [rows] = await pool.execute("INSERT INTO negocio (nombre, direccion) VALUES (?, ?)", [nombre, direccion]);
-        return rows;
+        return await prisma.negocio.findUnique({ where: { id: parseInt(id) } });
+    } catch (error) {
+        console.error("Error consultando negocios:", error);
+        throw new Error("Error al obtener el negocio");
+    }
+}
+const addNegocio = async (data) => {
+    try {
+        return await prisma.negocio.create({ data });
     } catch (error) {
         console.error("Error agregado el negocio:", error);
         throw error;
     }
 };
 
-const updateNegocio = async ({ id, nombre, direccion }) => {
+const updateNegocio = async (id, data) => {
     try {
-        const [rows] = await pool.execute("UPDATE negocio SET nombre = ?, direccion = ? WHERE id = ?", [nombre, direccion, id]);
-        return rows;
+        return await prisma.negocio.update({ where: { id: parseInt(id) }, data });
     } catch (error) {
         console.error("Error eliminando el negocio:", error);
         throw error;
     }
 }
 
-const deleteNegocio = async (id) => {
+const updateNegocioStatus = async (id, estado) => {
     try {
-        const [rows] = await pool.execute("update negocio set estado = 0 where id = ?", [id]);
-        return rows;
+        return await prisma.negocio.update({
+            where: { id: parseInt(id) },
+            data: { estado },
+        })
     } catch (error) {
-        console.error("Error eliminando el negocio:", error);
+        console.error("Error actualizando el estado del negocio: ", error)
         throw error;
     }
 }
-
-const upNegocio = async (id) => {
-    try {
-        const [rows] = await pool.execute("update negocio set estado = 1 where id = ?", [id]);
-        return rows;
-    } catch (error) {
-        console.error("Error eliminando el negocio:", error);
-        throw error;
-    }
-}
-module.exports = { getNegocios, addNegocio, updateNegocio, deleteNegocio, upNegocio };
+module.exports = { getNegocios, addNegocio, updateNegocio, updateNegocioStatus, getNegocioById };

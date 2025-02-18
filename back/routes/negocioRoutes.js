@@ -4,6 +4,7 @@ const negocioController = require("../controllers/negocioController");
 const { verifyToken } = require("../auth");
 
 router.get("/negocio", verifyToken, negocioController.getNegocios);
+router.get("/negocio/:id", verifyToken, negocioController.getNegocioById);
 router.post("/negocio", verifyToken, negocioController.addNegocio);
 router.put("/negocio/:id", verifyToken, negocioController.updateNegocio);
 router.delete("/negocio/:id", verifyToken, negocioController.deleteNegocio);

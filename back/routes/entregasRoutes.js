@@ -1,0 +1,14 @@
+const express = require("express");
+const router = express.Router();
+const entregasControllers = require("../controllers/entregasControllers");
+const { verifyToken } = require("../auth");
+
+router.get("/entregas", verifyToken, entregasControllers.getEntregas);
+router.get("/entregasCliente/:clienteId", verifyToken, entregasControllers.getEntregaByCliente);
+router.get("/entregasNegocio/:negocioId", verifyToken, entregasControllers.getEntregasByNegocio);
+router.post("/entregas", verifyToken, entregasControllers.addEntrega);
+router.put("/entregas/:id", verifyToken, entregasControllers.updateEntrega);
+router.delete("/entregas/:id", verifyToken, entregasControllers.dropEntrega);
+router.post("/entregas/:id", verifyToken, entregasControllers.upEntrega);
+
+module.exports = router;

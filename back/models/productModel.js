@@ -52,5 +52,23 @@ const updateProductStatus = async (id, estado) => {
         throw new Error("Error al obtener el producto");
     }
 };
+const updatePrecio = async (id, data) => {
+    try {
+        console.log("Precio antiguo", data.precioAntiguo);
+        console.log("Precio nuevo", data.precioNuevo);
+        console.log("Id", id)
+        const precioAntiguo = parseInt(data.precioAntiguo, 10);
+        const precioNuevo = parseInt(data.precioNuevo, 10);
 
-module.exports = { getAllProducts, getProductById, addProduct, updateProduct, updateProductStatus };
+        return await prisma.precioLog.create({
+            data: {
+                precioAntiguo, precioNuevo, articuloId: parseInt(id, 10)
+            }
+        });
+    } catch (error) {
+        console.error("Error consultando productos:", error);
+        throw new Error("Error al obtener el producto");
+    }
+};
+
+module.exports = { getAllProducts, getProductById, addProduct, updateProduct, updateProductStatus, updatePrecio };

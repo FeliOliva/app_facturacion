@@ -76,10 +76,16 @@ const updateProduct = async (req, res) => {
         if (!id) {
             return res.status(400).json({ error: "El id es obligatorio" })
         }
+        const product = await productsModel.getProductById(id);
+        console.log("producto", product);
         await redisClient.del(`Productos:${id}`);
         const keys = await redisClient.keys("Productos:*");
         if (keys.length > 0) {
             await redisClient.del(keys);
+        }
+        if (product.precio !== precio) {
+            const precioAntiguo = product.precio;
+            await productsModel.updatePrecio(id, { precioAntiguo, precioNuevo: precio });
         }
         const updatedProduct = await productsModel.updateProduct(id, { nombre, precio, rubroId, subRubroId, tipoUnidadId });
         res.json(updatedProduct);
@@ -95,7 +101,6 @@ const dropProduct = async (req, res) => {
             return res.status(400).json({ error: "El id es obligatorio" })
         }
         await redisClient.del(`Productos:${id}`);
-        const keys = await redisClient.keys("Productos:*");
         if (keys.length > 0) {
             await redisClient.del(keys);
         }

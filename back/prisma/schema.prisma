@@ -14,6 +14,7 @@ model Cheque {
   fechaCreacion DateTime @default(now())
   fechaEmision  DateTime
   fechaCobro    DateTime
+  monto         Int
   estado        Int      @default(1)
   negocioId     Int?
   negocio       Negocio? @relation(fields: [negocioId], references: [id])

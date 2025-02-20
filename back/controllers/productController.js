@@ -62,7 +62,7 @@ const addProduct = async (req, res) => {
         if (keys.length > 0) {
             await redisClient.del(keys);
         }
-        const newProduct = await productsModel.addProduct({ nombre, precio, precioInicial, rubroId, subRubroId, tipoUnidadId })
+        const newProduct = await productsModel.addProduct({ nombre: nombre.toUpperCase(), precio, precioInicial, rubroId, subRubroId, tipoUnidadId })
         res.json(newProduct)
     } catch (error) {
         console.error("Error al agregar el producto", error);
@@ -87,7 +87,7 @@ const updateProduct = async (req, res) => {
             const precioAntiguo = product.precio;
             await productsModel.updatePrecio(id, { precioAntiguo, precioNuevo: precio });
         }
-        const updatedProduct = await productsModel.updateProduct(id, { nombre, precio, rubroId, subRubroId, tipoUnidadId });
+        const updatedProduct = await productsModel.updateProduct(id, { nombre: nombre.toUpperCase(), precio, rubroId, subRubroId, tipoUnidadId });
         res.json(updatedProduct);
     } catch (error) {
         console.error("Error al actualizar el producto:", error);

@@ -54,9 +54,6 @@ const updateProductStatus = async (id, estado) => {
 };
 const updatePrecio = async (id, data) => {
     try {
-        console.log("Precio antiguo", data.precioAntiguo);
-        console.log("Precio nuevo", data.precioNuevo);
-        console.log("Id", id)
         const precioAntiguo = parseInt(data.precioAntiguo, 10);
         const precioNuevo = parseInt(data.precioNuevo, 10);
 

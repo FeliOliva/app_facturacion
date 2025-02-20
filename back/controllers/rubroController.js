@@ -54,7 +54,7 @@ const addRubro = async (req, res) => {
             await redisClient.del(keys);
         }
 
-        const newRubro = await rubroModel.addRubro({ nombre });
+        const newRubro = await rubroModel.addRubro({ nombre: nombre.toUpperCase() });
         res.json(newRubro);
     } catch (error) {
         console.error("Error al agregar el rubro:", error);
@@ -84,7 +84,7 @@ const updateRubro = async (req, res) => {
         if (keys.length > 0) {
             await redisClient.del(keys);
         }
-        const updatedRubro = await rubroModel.updateRubro(id, { nombre });
+        const updatedRubro = await rubroModel.updateRubro(id, { nombre: nombre.toUpperCase() });
         res.json(updatedRubro);
     } catch (error) {
         console.error("Error al actualizar el rubro:", error);

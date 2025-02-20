@@ -53,7 +53,7 @@ const addNegocio = async (req, res) => {
             await redisClient.del(keys);
         }
 
-        const newNegocio = await negocioModel.addNegocio({ nombre, direccion });
+        const newNegocio = await negocioModel.addNegocio({ nombre: nombre.toUpperCase(), direccion: direccion.toUpperCase() });
         res.json(newNegocio);
     } catch (error) {
         console.error("Error al agregar un negocio:", error);
@@ -90,7 +90,7 @@ const updateNegocio = async (req, res) => {
             await redisClient.del(keys);
         }
 
-        await negocioModel.updateNegocio(id, { nombre, direccion });
+        await negocioModel.updateNegocio(id, { nombre: nombre.toUpperCase(), direccion: direccion.toUpperCase() });
         res.status(200).json({ message: "Negocio actualizado correctamente" });
 
     } catch (error) {

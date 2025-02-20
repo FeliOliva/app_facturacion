@@ -60,7 +60,7 @@ const addClient = async (req, res) => {
         if (keys.length > 0) {
             await redisClient.del(keys);
         }
-        const newClient = await clientModel.addClient({ nombre, apellido, negocioId, telefono, editable });
+        const newClient = await clientModel.addClient({ nombre: nombre.toUpperCase(), apellido: apellido.toUpperCase(), negocioId, telefono, editable });
         res.json(newClient);
     }
     catch (error) {
@@ -97,8 +97,8 @@ const updateClient = async (req, res) => {
         }
 
         await clientModel.updateClient(id, {
-            nombre,
-            apellido,
+            nombre: nombre.toUpperCase(),
+            apellido: apellido.toUpperCase(),
             negocioId,
             telefono,
             editable,

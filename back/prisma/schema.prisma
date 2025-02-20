@@ -20,15 +20,16 @@ model Cheque {
 }
 
 model Negocio {
-  id            Int        @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   nombre        String
   direccion     String?
-  fechaCreacion DateTime   @default(now())
-  estado        Int        @default(1)
+  fechaCreacion DateTime      @default(now())
+  estado        Int           @default(1)
   clientes      Cliente[]
   ventas        Venta[]
   entregas      Entregas[]
   cheques       Cheque[] // Relación con Cheques
+  notasCredito  NotaCredito[] // Agregar relación con NotaCredito
 }
 
 model Caja {
@@ -181,5 +182,7 @@ model NotaCredito {
   fechaCreacion DateTime @default(now())
   estado        Int      @default(1)
   clienteId     Int
+  negocioId     Int
   cliente       Cliente  @relation(fields: [clienteId], references: [id])
+  negocio       Negocio  @relation(fields: [negocioId], references: [id])
 }

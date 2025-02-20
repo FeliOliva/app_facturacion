@@ -4,6 +4,7 @@ const entregasControllers = require("../controllers/entregasControllers");
 const { verifyToken } = require("../auth");
 
 router.get("/entregas", verifyToken, entregasControllers.getEntregas);
+router.get("/entregas/:id", verifyToken, entregasControllers.getEntregaById);
 router.get("/entregasCliente/:clienteId", verifyToken, entregasControllers.getEntregaByCliente);
 router.get("/entregasNegocio/:negocioId", verifyToken, entregasControllers.getEntregasByNegocio);
 router.post("/entregas", verifyToken, entregasControllers.addEntrega);

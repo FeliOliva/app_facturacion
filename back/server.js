@@ -18,6 +18,7 @@ const productsRoutes = require("./routes/productsRoutes");
 const ventaRoutes = require("./routes/ventasRoutes");
 const precioLogRoutes = require("./routes/precioLogRoutes");
 const entregaRoutes = require("./routes/entregasRoutes")
+const notasCreditoRoutes = require("./routes/notasCreditoRoutes");
 
 
 
@@ -50,7 +51,7 @@ app.post("/login", async (req, res) => {
 });
 
 
-app.use("/api", verifyToken, clientsRoutes, negociosRoutes, rubrosRoutes, subRubrosRoutes, productsRoutes, ventaRoutes, precioLogRoutes, entregaRoutes);
+app.use("/api", verifyToken, clientsRoutes, negociosRoutes, rubrosRoutes, subRubrosRoutes, productsRoutes, ventaRoutes, precioLogRoutes, entregaRoutes, notasCreditoRoutes);
 
 
 app.listen(PORT, () => {

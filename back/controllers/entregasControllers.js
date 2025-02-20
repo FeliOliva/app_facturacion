@@ -45,6 +45,20 @@ const getEntregas = async (req, res) => {
     }
 };
 
+const getEntregaById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ error: "El id es obligatorio" });
+        }
+
+        const entregaData = await entregaModel.getEntregaById(id);
+        res.json(entregaData);
+    } catch (error) {
+        console.error("Error al obtener la entrega por id:", error);
+        res.status(500).json({ error: "Error al obtener la entrega por id" });
+    }
+}
 const getEntregaByCliente = async (req, res) => {
     try {
         const { clienteId } = req.params;
@@ -120,7 +134,8 @@ const addEntrega = async (req, res) => {
 
 const updateEntrega = async (req, res) => {
     try {
-        const { id, monto } = req.body;
+        const { monto } = req.body;
+        const { id } = req.params;
         if (!id || !monto) {
             return res.status(400).json({ error: "Faltan campos obligatorios" });
         }
@@ -169,4 +184,4 @@ const upEntrega = async (req, res) => {
     }
 };
 
-module.exports = { getEntregas, getEntregaByCliente, getEntregasByNegocio, addEntrega, dropEntrega, updateEntrega, upEntrega };
+module.exports = { getEntregas, getEntregaById, getEntregaByCliente, getEntregasByNegocio, addEntrega, dropEntrega, updateEntrega, upEntrega };

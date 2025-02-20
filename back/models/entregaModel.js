@@ -43,6 +43,36 @@ const getAllEntregas = async (limit, page) => {
     }
 };
 
+const getEntregaById = async (id) => {
+    try {
+        return await prisma.entregas.findUnique({
+            where: { id: parseInt(id) },
+            include: {
+                cliente: {
+                    select: {
+                        nombre: true,
+                        apellido: true
+                    }
+                },
+                negocio: {
+                    select: {
+                        nombre: true
+                    }
+                },
+                metodoPago: {
+                    select: {
+                        nombre: true
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error("Error obteniendo entrega por id:", error);
+        throw new Error("Error al obtener la entrega por id");
+    }
+
+}
+
 const getEntregasByCliente = async (clienteId, limit, page) => {
     try {
         limit = parseInt(limit) || 10;
@@ -168,6 +198,7 @@ const updateEntregaStatus = async (id, estado) => {
 
 module.exports = {
     getAllEntregas,
+    getEntregaById,
     getEntregasByCliente,
     getEntregasByNegocio,
     addEntrega,

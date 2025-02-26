@@ -19,18 +19,18 @@ interface AuthContextType {
   token: string | null;
   login: (usuario: string, password: string) => Promise<void>;
   logout: () => void;
-//   register: (
-//     nombre: string,
-//     apellido: string,
-//     numero: string,
-//     pais: string,
-//     provincia: string,
-//     domicilio: string,
-//     usuario: string,
-//     email: string,
-//     password: string
-//   ) => Promise<void>;
-//   loading: boolean;
+  //   register: (
+  //     nombre: string,
+  //     apellido: string,
+  //     numero: string,
+  //     pais: string,
+  //     provincia: string,
+  //     domicilio: string,
+  //     usuario: string,
+  //     email: string,
+  //     password: string
+  //   ) => Promise<void>;
+  //   loading: boolean;
 }
 
 // Creamos el contexto con un valor por defecto undefined
@@ -46,10 +46,12 @@ export const useAuth = () => {
 };
 
 // 📌 Componente Provider que envuelve la aplicación
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-//   const [loading, setLoading] = useState<boolean>(true);
+  //   const [loading, setLoading] = useState<boolean>(true);
 
   const APIUrl = process.env.APP_API_URL || "http://localhost:3001"; // Variable de entorno pública
 
@@ -62,13 +64,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const decodedUser: User = jwtDecode(storedToken);
           setUser(decodedUser);
           setToken(storedToken);
-          axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${storedToken}`;
         } catch (error) {
           console.error("Error al decodificar el token:", error);
           logout(); // Si el token es inválido, se hace logout
         }
       }
-    //   setLoading(false);
+      //   setLoading(false);
     };
 
     loadUser();
@@ -77,8 +81,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // ✅ Función para iniciar sesión
   const login = async (usuario: string, password: string) => {
     try {
-        console.log("Datos enviados:", { usuario, password });
-      const response = await axios.post(`${APIUrl}/login`, { usuario, password });
+      console.log("Datos enviados:", { usuario, password });
+      const response = await axios.post(
+        `${APIUrl}/login`,
+        { usuario, password },
+        { withCredentials: true }
+      );
       console.log("Respuesta del servidor:", response.data);
       const newToken = response.data.token;
 
@@ -95,27 +103,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // ✅ Función para registrar un usuario
-//   const register = async (
-//     nombre: string,
-//     apellido: string,
-//     numero: string,
-//     pais: string,
-//     provincia: string,
-//     domicilio: string,
-//     usuario: string,
-//     email: string,
-//     password: string
-//   ) => {
-//     try {
-//       await axios.post(`${APIUrl}/usuarios/registrarUsuario`, {
-//         nombre, apellido, numero, pais, provincia, domicilio, usuario, email, password
-//       });
-//       console.log("Usuario registrado con éxito");
-//     } catch (error) {
-//       console.error("Error en el registro:", error);
-//       throw new Error("Error al registrar el usuario");
-//     }
-//   };
+  //   const register = async (
+  //     nombre: string,
+  //     apellido: string,
+  //     numero: string,
+  //     pais: string,
+  //     provincia: string,
+  //     domicilio: string,
+  //     usuario: string,
+  //     email: string,
+  //     password: string
+  //   ) => {
+  //     try {
+  //       await axios.post(`${APIUrl}/usuarios/registrarUsuario`, {
+  //         nombre, apellido, numero, pais, provincia, domicilio, usuario, email, password
+  //       });
+  //       console.log("Usuario registrado con éxito");
+  //     } catch (error) {
+  //       console.error("Error en el registro:", error);
+  //       throw new Error("Error al registrar el usuario");
+  //     }
+  //   };
 
   // ✅ Función para cerrar sesión
   const logout = () => {
@@ -126,7 +134,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, /* register, loading */ }}>
+    <AuthContext.Provider
+      value={{ user, token, login, logout /* register, loading */ }}
+    >
       {children}
     </AuthContext.Provider>
   );

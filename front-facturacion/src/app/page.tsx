@@ -24,6 +24,7 @@ const chartConfig = {
 function Page() {
   return (
     <>
+    
       <div className="flex flex-col gap-4 p-4 md:p-8 lg:p-12 w-full h-full">
         <div className="container mx-auto">
           <div className="grid text-center grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full gap-4 lg:gap-16">
@@ -110,6 +111,7 @@ function Page() {
           </div>
         </div>
       </div>
+      
     </>
   )
 }

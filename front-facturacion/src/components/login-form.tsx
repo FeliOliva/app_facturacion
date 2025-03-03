@@ -30,7 +30,6 @@ export function LoginForm({
     const password = form.password.value;
 
     try {
-      console.log("url", login);
       await login(usuario, password);
 
       router.push("/");

@@ -81,13 +81,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // ✅ Función para iniciar sesión
   const login = async (usuario: string, password: string) => {
     try {
-      console.log("Datos enviados:", { usuario, password });
       const response = await axios.post(
         `${APIUrl}/login`,
         { usuario, password },
         { withCredentials: true }
       );
-      console.log("Respuesta del servidor:", response.data);
       const newToken = response.data.token;
 
       localStorage.setItem("token", newToken);

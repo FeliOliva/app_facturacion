@@ -2,16 +2,20 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 
+
+import { Button } from "@/components/ui/button"
+
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type Clientes = {
-  id: string
+  id: number
   nombre: string
   apellido: string
   telefono: string
   negocioId: string
-  estado: "Activo" | "Inactivo"
+  estado: number
 }
+
 
 export const columns: ColumnDef<Clientes>[] = [
   {
@@ -33,10 +37,24 @@ export const columns: ColumnDef<Clientes>[] = [
   {
     accessorKey: "estado",
     header: "Estado",
+    cell: ({row}) => row.getValue("estado") === 1 ? "Activo" : "Inactivo",
   },
   {
     accessorKey: "negocioId",
     header: "Negocio",
   },
-  
+  {
+    accessorKey: "actions",
+    header: "Acciones",
+    id: "actions",
+    cell: ({row}) => {
+
+      return (
+        <Button
+        >
+          {row.getValue("estado") === 1 ? "Desactivar" : "Activar"}
+        </Button>
+      )
+    },
+  },
 ]

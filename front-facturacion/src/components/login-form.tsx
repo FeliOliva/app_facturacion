@@ -46,8 +46,8 @@ export function LoginForm({
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account
+          <CardDescription className="text-black">
+            Ingrese sus datos para ingresar.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -60,7 +60,6 @@ export function LoginForm({
                 <Input
                   id="usuario"
                   type="text" // Cambia a "text"
-                  placeholder="Nombre de usuario"
                   required
                 />
               </div>
@@ -77,7 +76,6 @@ export function LoginForm({
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Ingrese su contraseña"
                   required
                 />
               </div>

@@ -36,10 +36,10 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div>
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
+ <div className="flex flex-col flex-1 h-full overflow-hidden">
+    <div className="rounded-md border flex-1 overflow-auto">
+      <Table className="h-full">
+        <TableHeader className="sticky top-0">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {

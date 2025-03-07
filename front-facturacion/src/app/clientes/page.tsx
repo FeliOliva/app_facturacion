@@ -109,12 +109,12 @@ export default function ClientesPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <section className="container mx-auto py-10">
-        <h1 className="text-3xl font-bold">Clientes</h1>
-        <div className="container mx-auto py-10">
-          <DataTable columns={columns} data={data} />
-        </div>
-      </section>
+    <section className="container mx-auto py-10">
+        <h1 className="text-3xl font-light">Estos son los clientes disponibles</h1>
+    <div className="container mx-auto py-10">
+      <DataTable columns={columns} data={data} />
+    </div>
+    </section>
     </div>
   );
 }

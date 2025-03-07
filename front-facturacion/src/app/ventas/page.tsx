@@ -20,7 +20,7 @@ export default async function ventas() {
   return (
     <div className="flex flex-col min-h-screen">
     <section className="container mx-auto py-10">
-        <h1 className="text-3xl font-bold">Ventas</h1>
+    <h1 className="text-3xl font-light">Estas son las ventas registradas</h1>
     <div className="container mx-auto py-10">
       <DataTable columns={columns} data={data} />
     </div>

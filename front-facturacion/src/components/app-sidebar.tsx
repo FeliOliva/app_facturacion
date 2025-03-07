@@ -1,4 +1,4 @@
-import { UserRound , Home, ShoppingBasket , CircleDollarSign , HandCoins } from "lucide-react"
+import { UserRound, Home, ShoppingBasket, CircleDollarSign, HandCoins, LogOut} from "lucide-react"
 
 import {
   Sidebar,
@@ -9,6 +9,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
+
 } from "@/components/ui/sidebar"
 
 // Menu items.
@@ -37,21 +39,29 @@ const items = [
     title: "Ventas",
     href: "/ventas",
     icon: CircleDollarSign,
-  },
+  }
+]
+
+const footerItems = [
+  {
+    title: "Cerrar sesion",
+    href: "/logout",
+    icon: LogOut,
+  }
 ]
 
 export function AppSidebar() {
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Mi Familia Verduleria</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.href}>
+                <SidebarMenuItem key={item.title} className="my-1">
+                  <SidebarMenuButton asChild className="flex items-center space-x-4 text-lg rounded-lg transition" >
+                    <a href={item.href} >
                       <item.icon />
                       <span>{item.title}</span>
                     </a>
@@ -62,7 +72,20 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+       <SidebarFooter>
+          <SidebarMenu>              
+            {footerItems.map((footerItems) => (
+              <SidebarMenuItem key={footerItems.title}>
+                <SidebarMenuButton asChild>
+                  <a href={footerItems.href}>
+                    <footerItems.icon />
+                    <span>{footerItems.title}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              ))}
+          </SidebarMenu>
+        </SidebarFooter>
     </Sidebar>
-    
   )
 }

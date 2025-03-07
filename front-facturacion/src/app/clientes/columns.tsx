@@ -48,10 +48,8 @@ export const columns: ColumnDef<Clientes>[] = [
     header: "Acciones",
     id: "actions",
     cell: ({row}) => {
-
       return (
-        <Button
-        >
+        <Button>
           {row.getValue("estado") === 1 ? "Desactivar" : "Activar"}
         </Button>
       )

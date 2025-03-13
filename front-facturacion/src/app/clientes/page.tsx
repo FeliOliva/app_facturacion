@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { Clientes, columns as baseColumns } from "./columns";
 import { DataTable } from "./data-table";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Terminal } from "lucide-react"
+
 
 async function fetchClientes(token: string): Promise<Clientes[]> {
   try {
@@ -56,31 +60,63 @@ export default function ClientesPage() {
       return;
     }
 
-    try {
-      const nuevoEstado = estadoActual === 1 ? 0 : 1;
-      const response = await fetch(`http://localhost:3001/api/clientes/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ estado: nuevoEstado }),
-      });
+    if (estadoActual === 0) {
 
-      if (!response.ok) {
-        throw new Error("Error al actualizar el estado: " + response.statusText);
+      const nuevoEstado = estadoActual === 0 ? 1 : 0;
+
+      try {
+        const response = await fetch(`http://localhost:3001/api/clientes/${id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ estado: nuevoEstado }),
+        });
+        if (!response.ok) {
+          throw new Error("Error al actualizar el estado: " + response.statusText);
+        }
+        // Actualizar el estado localmente
+        setData((prevData) =>
+          prevData.map((cliente) =>
+            cliente.id === id ? { ...cliente, estado: nuevoEstado } : cliente
+          )
+        );
+        alert("El cliente ha sido activado");
+      } catch (error) {
+        console.error("Error en cambiarEstadoCliente:", error);
       }
+    } else {
 
-      // Actualizar el estado localmente
-      setData((prevData) =>
-        prevData.map((cliente) =>
-          cliente.id === id ? { ...cliente, estado: nuevoEstado } : cliente
-        )
-      );
-    } catch (error) {
-      console.error("Error en cambiarEstadoCliente:", error);
+      const nuevoEstado = estadoActual === 1 ? 0 : 1;
+
+      try {
+        const response = await fetch(`http://localhost:3001/api/clientes/${id}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ estado: nuevoEstado }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Error al actualizar el estado: " + response.statusText);
+        }
+        // Actualizar el estado localmente
+        setData((prevData) =>
+          prevData.map((cliente) =>
+            cliente.id === id ? { ...cliente, estado: nuevoEstado } : cliente
+          )
+        );
+        alert("El cliente ha sido desactivado");
+      } catch (error) {
+        console.error("Error en cambiarEstadoCliente:", error);
+      }
     }
   };
+
+
 
   // Pasar la función a las columnas
   const columns = baseColumns.map((col) => {
@@ -90,12 +126,11 @@ export default function ClientesPage() {
         cell: ({ row }: { row: { original: Clientes } }) => {
           const cliente = row.original;
           return (
-            <button
+            <Button
               onClick={() => cambiarEstadoCliente(cliente.id, cliente.estado)}
-              className="bg-black hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
               {cliente.estado === 1 ? "Desactivar" : "Activar"}
-            </button>
+            </Button>
           );
         },
       };
@@ -109,12 +144,12 @@ export default function ClientesPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-    <section className="container mx-auto py-10">
+      <section className="container mx-auto py-10">
         <h1 className="text-3xl font-light">Estos son los clientes disponibles</h1>
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={data} />
-    </div>
-    </section>
+        <div className="container mx-auto py-10">
+          <DataTable columns={columns} data={data} />
+        </div>
+      </section>
     </div>
   );
 }

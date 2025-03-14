@@ -1,6 +1,27 @@
 const clientModel = require("../models/clientModel");
 const { redisClient } = require("../db");
 
+const getAllClients = async (req, res) => {
+    try {
+        const cacheKey = `Allclients`;
+        //Verificar si los datos están en caché
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            return res.status(200).json(JSON.parse(cachedData)); // Retorna la caché
+        }
+
+        //Consultar la base de datos con Prisma
+        const clientsData = await clientModel.getAllClients();
+
+        //Guardar en Redis con expiración de 10 minutos
+        await redisClient.setEx(cacheKey, 600, JSON.stringify(clientsData));
+
+        res.status(200).json(clientsData);
+    } catch (error) {
+        console.error("Error al obtener clientes:", error);
+        res.status(500).json({ error: "Error al obtener clientes" });
+    }
+}
 const getClients = async (req, res) => {
     try {
         const { page, limit } = req.query;
@@ -49,18 +70,18 @@ const getClientById = async (req, res) => {
 
 const addClient = async (req, res) => {
     try {
-        const { nombre, apellido, negocioId, telefono, editable, rol_usuario } = req.body;
+        const { nombre, apellido, telefono, editable, rol_usuario } = req.body;
         if (rol_usuario !== 0) {
             return res.status(401).json({ error: "No tienes permiso para realizar esta acción" });
         }
-        if (!nombre || !apellido || !negocioId || editable === undefined) {
+        if (!nombre || !apellido || editable === undefined) {
             return res.status(400).json({ error: "Todos los campos son obligatorios" });
         }
         const keys = await redisClient.keys("clients:*");
         if (keys.length > 0) {
             await redisClient.del(keys);
         }
-        const newClient = await clientModel.addClient({ nombre: nombre.toUpperCase(), apellido: apellido.toUpperCase(), negocioId, telefono, editable });
+        const newClient = await clientModel.addClient({ nombre: nombre.toUpperCase(), apellido: apellido.toUpperCase(), telefono, editable });
         res.json(newClient);
     }
     catch (error) {
@@ -70,7 +91,7 @@ const addClient = async (req, res) => {
 }
 const updateClient = async (req, res) => {
     try {
-        const { nombre, apellido, negocioId, telefono, editable, rol_usuario } = req.body;
+        const { nombre, apellido, telefono, editable, rol_usuario } = req.body;
         const { id } = req.params;
 
         if (rol_usuario !== 0) {
@@ -86,7 +107,7 @@ const updateClient = async (req, res) => {
             return res.status(404).json({ error: "El cliente no existe" });
         }
 
-        if (!nombre || !apellido || !negocioId) {
+        if (!nombre || !apellido) {
             return res.status(400).json({ error: "Todos los campos son obligatorios" });
         }
         await redisClient.del(`clients:${id}`);
@@ -99,7 +120,6 @@ const updateClient = async (req, res) => {
         await clientModel.updateClient(id, {
             nombre: nombre.toUpperCase(),
             apellido: apellido.toUpperCase(),
-            negocioId,
             telefono,
             editable,
         });
@@ -152,4 +172,4 @@ const upClient = async (req, res) => {
 
 
 
-module.exports = { getClients, addClient, updateClient, deleteClient, upClient, getClientById };
+module.exports = { getAllClients, getClients, addClient, updateClient, deleteClient, upClient, getClientById };

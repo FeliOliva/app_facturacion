@@ -4,6 +4,7 @@ const clientControllers = require("../controllers/clientControllers");
 const { verifyToken } = require("../auth");
 
 router.get("/clientes", verifyToken, clientControllers.getClients);
+router.get("/getAllClientes", verifyToken, clientControllers.getAllClients);
 router.get("/clientes/:id", verifyToken, clientControllers.getClientById);
 router.post("/clientes", verifyToken, clientControllers.addClient);
 router.put("/clientes/:id", verifyToken, clientControllers.updateClient);

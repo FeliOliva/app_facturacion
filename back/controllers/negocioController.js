@@ -1,7 +1,17 @@
 const negocioModel = require("../models/negocioModel");
 const { redisClient } = require("../db");
 
+const getAllNegociosByCliente = async (req, res) => {
+    try {
+        const { id } = req.params
+        const negociosData = await negocioModel.getAllNegociosByCliente(id)
 
+        res.status(200).json(negociosData)
+    } catch (error) {
+        console.error("Error al obtener los negocios:", error);
+        res.status(500).json({ error: "Error al obtener los negocios" });
+    }
+}
 const getNegocios = async (req, res) => {
     try {
         const { page, limit } = req.query
@@ -41,11 +51,11 @@ const getNegocioById = async (req, res) => {
 }
 const addNegocio = async (req, res) => {
     try {
-        const { nombre, direccion, rol_usuario } = req.body;
+        const { nombre, direccion, clienteId, rol_usuario } = req.body;
         if (rol_usuario !== 0) {
             return res.status(403).json({ error: "No tienes permiso para realizar esta acción" });
         }
-        if (!nombre || !direccion) {
+        if (!nombre || !direccion || clienteId) {
             return res.status(400).json({ error: "Todos los campos son obligatorios" });
         }
         const keys = await redisClient.keys("negocios:*");
@@ -53,7 +63,7 @@ const addNegocio = async (req, res) => {
             await redisClient.del(keys);
         }
 
-        const newNegocio = await negocioModel.addNegocio({ nombre: nombre.toUpperCase(), direccion: direccion.toUpperCase() });
+        const newNegocio = await negocioModel.addNegocio({ nombre: nombre.toUpperCase(), direccion: direccion.toUpperCase(), clienteId });
         res.json(newNegocio);
     } catch (error) {
         console.error("Error al agregar un negocio:", error);
@@ -67,12 +77,12 @@ const updateNegocio = async (req, res) => {
             return res.status(400).json({ error: "El id es obligatorio" });
         }
 
-        const { nombre, direccion, rol_usuario } = req.body;
+        const { nombre, direccion, clienteId, rol_usuario } = req.body;
         if (rol_usuario !== 0) {
             return res.status(403).json({ error: "No tienes permiso para realizar esta acción" });
         }
 
-        if (!nombre || !direccion) {
+        if (!nombre || !direccion || !clienteId) {
             return res.status(400).json({ error: "Todos los campos son obligatorios" });
         }
 
@@ -90,7 +100,7 @@ const updateNegocio = async (req, res) => {
             await redisClient.del(keys);
         }
 
-        await negocioModel.updateNegocio(id, { nombre: nombre.toUpperCase(), direccion: direccion.toUpperCase() });
+        await negocioModel.updateNegocio(id, { nombre: nombre.toUpperCase(), direccion: direccion.toUpperCase(), clienteId: clienteId });
         res.status(200).json({ message: "Negocio actualizado correctamente" });
 
     } catch (error) {
@@ -137,4 +147,4 @@ const upNegocio = async (req, res) => {
         res.status(500).json({ error: "Error al activar el negocio" });
     }
 }
-module.exports = { getNegocios, addNegocio, updateNegocio, deleteNegocio, upNegocio, getNegocioById };
+module.exports = { getAllNegociosByCliente, getNegocios, addNegocio, updateNegocio, deleteNegocio, upNegocio, getNegocioById };

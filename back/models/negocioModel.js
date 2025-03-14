@@ -1,6 +1,28 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+const getAllNegociosByCliente = async (clienteId) => {
+    try {
+        const negocios = await prisma.negocio.findMany({
+            where: {
+                clienteId: Number(clienteId),
+            },
+        });
+        const totalNegocios = await prisma.negocio.count({
+            where: {
+                clienteId: Number(clienteId),
+            },
+        });
+        return {
+            negocios,
+            total: totalNegocios,
+        };
+    } catch (error) {
+        console.error("Error consultando negocios:", error);
+        throw new Error("Error al obtener los negocios");
+    }
+};
+
 const getNegocios = async (limit, page) => {
     try {
         const offset = (page - 1) * limit;
@@ -57,4 +79,4 @@ const updateNegocioStatus = async (id, estado) => {
         throw error;
     }
 }
-module.exports = { getNegocios, addNegocio, updateNegocio, updateNegocioStatus, getNegocioById };
+module.exports = { getAllNegociosByCliente, getNegocios, addNegocio, updateNegocio, updateNegocioStatus, getNegocioById };

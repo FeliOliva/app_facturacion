@@ -1,7 +1,20 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const getAllProducts = async (limit, page) => {
+const getAllProducts = async () => {
+    try {
+        const products = await prisma.producto.findMany();
+        const totalProducts = await prisma.producto.count();
+        return {
+            products,
+            total: totalProducts,
+        };
+    } catch (error) {
+        console.error("Error consultando productos:", error);
+        throw new Error("Error al obtener los productos");
+    }
+}
+const getProducts = async (limit, page) => {
     try {
         const offset = (page - 1) * limit;
         const products = await prisma.producto.findMany({
@@ -68,4 +81,4 @@ const updatePrecio = async (id, data) => {
     }
 };
 
-module.exports = { getAllProducts, getProductById, addProduct, updateProduct, updateProductStatus, updatePrecio };
+module.exports = { getAllProducts, getProducts, getProductById, addProduct, updateProduct, updateProductStatus, updatePrecio };

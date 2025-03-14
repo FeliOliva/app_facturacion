@@ -1,6 +1,21 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+const getAllClients = async () => {
+    try {
+        const clients = await prisma.cliente.findMany()
+        const totalClients = await prisma.cliente.count();
+
+        return {
+            clients,
+            total: totalClients,
+        };
+    } catch (error) {
+        console.error("Error en getClients:", error);
+        throw new Error("Error al obtener los clientes");
+    }
+}
+
 const getClients = async (limit, page) => {
     try {
         const offset = (page - 1) * limit;
@@ -65,4 +80,4 @@ const updateClienteStatus = async (id, estado) => {
         throw error;
     }
 }
-module.exports = { getClients, addClient, updateClient, updateClienteStatus, getClientById };
+module.exports = { getAllClients, getClients, addClient, updateClient, updateClienteStatus, getClientById };

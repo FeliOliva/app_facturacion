@@ -1,7 +1,30 @@
 const productsModel = require("../models/productModel");
 const { redisClient } = require("../db");
 
+
 const getAllProducts = async (req, res) => {
+    try {
+        const cacheKey = `AllProductos`;
+
+        //Verificar si los datos están en caché
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            return res.status(200).json(JSON.parse(cachedData)); // Retorna la caché
+        }
+
+        //Consultar la base de datos con Prisma
+        const productsData = await productsModel.getAllProducts();
+
+        //Guardar en Redis con expiración de 10 minutos
+        await redisClient.setEx(cacheKey, 600, JSON.stringify(productsData));
+
+        res.status(200).json(productsData);
+    } catch (error) {
+        console.error("Error al obtener los productos:", error);
+        res.status(500).json({ error: "Error al obtener los productos" });
+    }
+}
+const getProducts = async (req, res) => {
     try {
         const { page, limit } = req.query;
         const pageNumber = parseInt(page);
@@ -20,7 +43,7 @@ const getAllProducts = async (req, res) => {
         }
 
         //Consultar la base de datos con Prisma
-        const productsData = await productsModel.getAllProducts(limitNumber, pageNumber);
+        const productsData = await productsModel.getProducts(limitNumber, pageNumber);
 
         //Guardar en Redis con expiración de 10 minutos
         await redisClient.setEx(cacheKey, 600, JSON.stringify(productsData));
@@ -59,8 +82,10 @@ const addProduct = async (req, res) => {
             return res.status(400).json({ error: "Todos los campos son obligatorios" })
         }
         const keys = await redisClient.keys("Productos:*");
+        const keys2 = await redisClient.keys("AllProductos:*");
         if (keys.length > 0) {
             await redisClient.del(keys);
+            await redisClient.del(keys2)
         }
         const newProduct = await productsModel.addProduct({ nombre: nombre.toUpperCase(), precio, precioInicial, tipoUnidadId })
         res.json(newProduct)
@@ -80,8 +105,10 @@ const updateProduct = async (req, res) => {
         console.log("producto", product);
         await redisClient.del(`Productos:${id}`);
         const keys = await redisClient.keys("Productos:*");
+        const keys2 = await redisClient.keys("AllProductos:*");
         if (keys.length > 0) {
             await redisClient.del(keys);
+            await redisClient.del(keys2)
         }
         if (product.precio !== precio) {
             const precioAntiguo = product.precio;
@@ -100,9 +127,11 @@ const dropProduct = async (req, res) => {
         if (!id) {
             return res.status(400).json({ error: "El id es obligatorio" })
         }
-        await redisClient.del(`Productos:${id}`);
+        const keys = await redisClient.keys("Productos:*");
+        const keys2 = await redisClient.keys("AllProductos:*");
         if (keys.length > 0) {
             await redisClient.del(keys);
+            await redisClient.del(keys2)
         }
         const deletedProduct = await productsModel.updateProductStatus(id, 0);
         res.json(deletedProduct);
@@ -117,10 +146,11 @@ const upProduct = async (req, res) => {
         if (!id) {
             return res.status(400).json({ error: "El id es obligatorio" })
         }
-        await redisClient.del(`Productos:${id}`);
         const keys = await redisClient.keys("Productos:*");
+        const keys2 = await redisClient.keys("AllProductos:*");
         if (keys.length > 0) {
             await redisClient.del(keys);
+            await redisClient.del(keys2)
         }
         const upProduct = await productsModel.updateProductStatus(id, 1);
         res.json(upProduct);
@@ -129,4 +159,4 @@ const upProduct = async (req, res) => {
         res.status(500).json({ error: "Error al activar el producto" });
     }
 }
-module.exports = { getAllProducts, getProductById, addProduct, dropProduct, updateProduct, upProduct }
+module.exports = { getAllProducts, getProducts, getProductById, addProduct, dropProduct, updateProduct, upProduct }

@@ -26,11 +26,12 @@ model Negocio {
   direccion     String?
   fechaCreacion DateTime      @default(now())
   estado        Int           @default(1)
-  clientes      Cliente[]
+  clienteId     Int?
+  clientes      Cliente?      @relation(fields: [clienteId], references: [id])
   ventas        Venta[]
   entregas      Entregas[]
-  cheques       Cheque[] // Relación con Cheques
-  notasCredito  NotaCredito[] // Agregar relación con NotaCredito
+  cheques       Cheque[]
+  notasCredito  NotaCredito[]
 }
 
 model Caja {
@@ -67,11 +68,10 @@ model Cliente {
   editable      Int           @default(1)
   fechaCreacion DateTime      @default(now())
   estado        Int           @default(1)
-  negocioId     Int?
-  negocio       Negocio?      @relation(fields: [negocioId], references: [id])
   ventas        Venta[]
   entregas      Entregas[]
   notasCredito  NotaCredito[]
+  negocios      Negocio[] // ✅ Ahora el nombre es consistente con la relación
 }
 
 model Usuario {
@@ -90,6 +90,7 @@ model Producto {
   nombre        String
   precio        Int
   precioInicial Int?
+  medicion      String
   fechaCreacion DateTime       @default(now())
   estado        Int            @default(1)
   tipoUnidadId  Int?

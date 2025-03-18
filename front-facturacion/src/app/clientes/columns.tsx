@@ -1,21 +1,18 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef } from "@tanstack/react-table";
 
-
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type Clientes = {
-  id: number
-  nombre: string
-  apellido: string
-  telefono: string
-  negocioId: string
-  estado: number
-}
-
+  id: number;
+  nombre: string;
+  apellido: string;
+  telefono: string;
+  estado: number;
+};
 
 export const columns: ColumnDef<Clientes>[] = [
   {
@@ -37,22 +34,18 @@ export const columns: ColumnDef<Clientes>[] = [
   {
     accessorKey: "estado",
     header: "Estado",
-    cell: ({row}) => row.getValue("estado") === 1 ? "Activo" : "Inactivo",
-  },
-  {
-    accessorKey: "negocioId",
-    header: "Negocio",
+    cell: ({ row }) => (row.getValue("estado") === 1 ? "Activo" : "Inactivo"),
   },
   {
     accessorKey: "actions",
     header: "Acciones",
     id: "actions",
-    cell: ({row}) => {
+    cell: ({ row }) => {
       return (
         <Button>
           {row.getValue("estado") === 1 ? "Desactivar" : "Activar"}
         </Button>
-      )
+      );
     },
   },
-]
+];

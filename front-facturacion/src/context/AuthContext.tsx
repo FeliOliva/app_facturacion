@@ -129,9 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setUser(null);
     setToken(null);
     delete axios.defaults.headers.common["Authorization"];
-    return(
-      window.location.href = "/"
-    )
+    return (window.location.href = "/");
   };
 
   return (

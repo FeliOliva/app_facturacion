@@ -15,9 +15,6 @@ const getVentas = async (limitNumber, pageNumber) => {
                 negocio: {
                     select: { nombre: true }
                 },
-                metodoPago: {
-                    select: { nombre: true }
-                },
                 caja: {
                     select: { nombre: true }
                 },

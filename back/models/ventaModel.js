@@ -64,7 +64,6 @@ const addVenta = async (data) => {
                     total: data.total, // Se pasa el total ya calculado desde el controlador
                     clienteId: data.clienteId || null,
                     negocioId: data.negocioId,
-                    metodoPagoId: data.metodoPagoId || null,
                     cajaId: data.cajaId || null,
                 },
             });

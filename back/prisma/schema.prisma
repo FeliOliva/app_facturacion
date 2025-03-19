@@ -56,7 +56,6 @@ model MetodoPago {
   nombre        String
   fechaCreacion DateTime   @default(now())
   estado        Int        @default(1)
-  ventas        Venta[]
   entregas      Entregas[]
 }
 
@@ -118,11 +117,9 @@ model Venta {
   estado        Int            @default(1)
   clienteId     Int?
   negocioId     Int
-  metodoPagoId  Int?
   cajaId        Int?
   cliente       Cliente?       @relation(fields: [clienteId], references: [id])
   negocio       Negocio        @relation(fields: [negocioId], references: [id])
-  metodoPago    MetodoPago?    @relation(fields: [metodoPagoId], references: [id])
   caja          Caja?          @relation(fields: [cajaId], references: [id])
   detalles      DetalleVenta[]
 }

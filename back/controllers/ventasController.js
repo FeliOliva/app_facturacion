@@ -44,7 +44,7 @@ const getVentaById = async (req, res) => {
 
 const addVenta = async (req, res) => {
     try {
-        const { nroVenta, clienteId, negocioId, metodoPagoId, cajaId, rol_usuario, detalles } = req.body;
+        const { nroVenta, clienteId, negocioId, cajaId, rol_usuario, detalles } = req.body;
 
         if (rol_usuario !== 0 && rol_usuario !== 1) {
             return res.status(401).json({ error: "No tienes permiso para realizar esta acción" });
@@ -72,7 +72,6 @@ const addVenta = async (req, res) => {
             total: totalCalculado, // Pasamos el total calculado
             clienteId,
             negocioId,
-            metodoPagoId,
             cajaId,
             detalles: detallesProcesados, // Pasamos los detalles con `subTotal` ya calculado
         });

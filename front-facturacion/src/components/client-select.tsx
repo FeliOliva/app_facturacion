@@ -1,18 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
-// Definición de tipos - Asegúrate de que esta interfaz coincida exactamente con la definida en tu página
+// Definición de tipos para los clientes
 export interface Cliente {
-  id: string; // Cambiado a string solamente para que coincida con la definición en ventas.tsx
+  id: string;
   farmacia: string;
   nombre: string;
   apellido: string;
@@ -23,12 +17,13 @@ interface ClienteSelectProps {
   value?: string;
   onChangeCliente: (cliente: Cliente | undefined) => void;
   onInputChange?: (value: string) => void;
+  disabled?: boolean;
 }
 
 // Interfaz para la respuesta de la API
 interface ClientesResponse {
   clients: Array<{
-    id: number; // La API devuelve números como IDs
+    id: number;
     farmacia?: string;
     nombre: string;
     apellido: string;
@@ -41,11 +36,48 @@ const ClienteSelect = ({
   value,
   onChangeCliente,
   onInputChange,
+  disabled = false,
 }: ClienteSelectProps) => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [selectedCliente, setSelectedCliente] = useState<Cliente | undefined>();
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const APIUrl = process.env.NEXT_PUBLIC_APP_API_URL;
 
+  // Efecto para cerrar la lista desplegable cuando se hace clic fuera
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [wrapperRef]);
+
+  // Efecto para configurar el cliente seleccionado cuando se pasa un valor
+  useEffect(() => {
+    if (value && clientes.length > 0) {
+      const cliente = clientes.find((c) => c.id === value);
+      setSelectedCliente(cliente);
+      if (cliente) {
+        setSearchTerm(
+          `${cliente.farmacia ? `${cliente.farmacia} - ` : ""}${
+            cliente.nombre
+          } ${cliente.apellido}`
+        );
+      }
+    }
+  }, [value, clientes]);
+
+  // Cargar clientes desde la API
   useEffect(() => {
     const fetchClientes = async () => {
       try {
@@ -87,52 +119,91 @@ const ClienteSelect = ({
     fetchClientes();
   }, [APIUrl]);
 
-  const handleChangeCliente = (value: string) => {
-    const selectedCliente = clientes.find((cliente) => cliente.id === value);
-    onChangeCliente(selectedCliente);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setIsOpen(true);
 
-    // Solo llama a onInputChange si se ha pasado como prop
-    if (onInputChange) {
-      onInputChange(value);
+    // Si el campo está vacío, limpiamos la selección
+    if (!value.trim()) {
+      onChangeCliente(undefined);
+      if (onInputChange) {
+        onInputChange("");
+      }
+      setSelectedCliente(undefined);
     }
   };
 
-  // Filtramos los clientes activos (estado === 1)
+  const handleSelectCliente = (cliente: Cliente) => {
+    setSelectedCliente(cliente);
+    setSearchTerm(
+      `${cliente.farmacia ? `${cliente.farmacia} - ` : ""}${cliente.nombre} ${
+        cliente.apellido
+      }`
+    );
+    setIsOpen(false);
+    onChangeCliente(cliente);
+
+    if (onInputChange) {
+      onInputChange(cliente.id);
+    }
+  };
+
+  const handleFocus = () => {
+    setIsOpen(true);
+  };
+
+  // Filtramos los clientes activos (estado === 1) y por término de búsqueda
   const filteredClientes =
     clientes.length > 0
       ? clientes
           .filter((cliente) => cliente.estado === 1)
-          // Si hay un término de búsqueda, filtramos por él
           .filter((cliente) => {
             if (!searchTerm) return true;
-            const clienteFullInfo =
-              `${cliente.farmacia} - ${cliente.nombre} ${cliente.apellido}`.toLowerCase();
-            return clienteFullInfo.includes(searchTerm.toLowerCase());
+            const clienteInfo =
+              `${cliente.farmacia} ${cliente.nombre} ${cliente.apellido}`.toLowerCase();
+            return clienteInfo.includes(searchTerm.toLowerCase());
           })
       : [];
 
   return (
-    <div>
+    <div className="relative" ref={wrapperRef}>
       <p className="py-2">Seleccione Cliente</p>
-      <Select value={value} onValueChange={handleChangeCliente}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Selecciona un cliente" />
-        </SelectTrigger>
-        <SelectContent>
+
+      {/* Campo de búsqueda */}
+      <Input
+        type="text"
+        placeholder="Buscar cliente..."
+        value={searchTerm}
+        onChange={handleSearchChange}
+        onFocus={handleFocus}
+        disabled={disabled}
+        className="w-full placeholder:text-black"
+      />
+
+      {/* Lista desplegable de clientes */}
+      {isOpen && searchTerm && !disabled && (
+        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
           {filteredClientes.length > 0 ? (
             filteredClientes.map((cliente) => (
-              <SelectItem key={cliente.id} value={cliente.id}>
-                {cliente.farmacia ? `${cliente.farmacia} - ` : ""}
-                {cliente.nombre} {cliente.apellido}
-              </SelectItem>
+              <div
+                key={cliente.id}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleSelectCliente(cliente)}
+              >
+                <div className="font-medium">
+                  {cliente.farmacia ? `${cliente.farmacia} - ` : ""}
+                  {cliente.nombre} {cliente.apellido}
+                </div>
+              </div>
             ))
           ) : (
-            <SelectItem value="no-results" disabled>
+            <div className="px-4 py-2 text-gray-500">
               No hay clientes disponibles
-            </SelectItem>
+            </div>
           )}
-        </SelectContent>
-      </Select>
+        </div>
+      )}
     </div>
   );
 };

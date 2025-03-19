@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/context/AuthContext"; // Asegúrate de que la ruta sea correcta
+import { useAuthContext } from "@/context/AuthContext"; // Asegúrate de que la ruta sea correcta
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -19,7 +19,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const { login } = useAuth();
+  const { login } = useAuthContext();
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

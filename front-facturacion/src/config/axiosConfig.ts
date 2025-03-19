@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // ✅ Base URL del backend (usa variables de entorno)
-const API_URL = process.env.APP_API_URL || "http://localhost:3001";
+const API_URL = process.env.NEXT_PUBLIC_APP_API_URL;
 
 // ✅ Configuración inicial de Axios
 const axiosInstance = axios.create({

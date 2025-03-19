@@ -4,13 +4,12 @@ import { useEffect, useState } from "react";
 import { Clientes, columns as baseColumns } from "./columns";
 import { DataTable } from "./data-table";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Terminal } from "lucide-react"
 
+const APIUrl = process.env.NEXT_PUBLIC_APP_API_URL;
 
 async function fetchClientes(token: string): Promise<Clientes[]> {
   try {
-    const response = await fetch("http://localhost:3001/api/clientes", {
+    const response = await fetch( APIUrl + "/api/clientes?page=1&limit=3", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -65,7 +64,7 @@ export default function ClientesPage() {
       const nuevoEstado = estadoActual === 0 ? 1 : 0;
 
       try {
-        const response = await fetch(`http://localhost:3001/api/clientes/${id}`, {
+        const response = await fetch(`${APIUrl}/api/clientes/${id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -91,7 +90,7 @@ export default function ClientesPage() {
       const nuevoEstado = estadoActual === 1 ? 0 : 1;
 
       try {
-        const response = await fetch(`http://localhost:3001/api/clientes/${id}`, {
+        const response = await fetch(`${APIUrl}/api/clientes/${id}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",

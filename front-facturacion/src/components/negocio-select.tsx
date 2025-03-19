@@ -78,6 +78,15 @@ const NegocioSelect = ({
     }
   }, [value, negocios]);
 
+  // Efecto para limpiar cuando cambia el clienteId
+  useEffect(() => {
+    if (!clienteId) {
+      setSearchTerm("");
+      setSelectedNegocio(undefined);
+      setNegocios([]);
+    }
+  }, [clienteId]);
+
   // Cargar negocios desde la API cuando cambia el clienteId
   useEffect(() => {
     const fetchNegocios = async () => {
@@ -134,8 +143,8 @@ const NegocioSelect = ({
     setSearchTerm(value);
     setIsOpen(true);
 
-    // Si el campo está vacío, limpiamos la selección
-    if (!value.trim()) {
+    // Si el campo está vacío, limpiamos la selección solo si se ha escrito algo antes
+    if (!value.trim() && selectedNegocio) {
       onChangeNegocio(undefined);
       if (onInputChange) {
         onInputChange("");
@@ -195,8 +204,8 @@ const NegocioSelect = ({
         className="w-full placeholder:text-black"
       />
 
-      {/* Lista desplegable de negocios */}
-      {isOpen && searchTerm && !disabled && clienteId && !loading && (
+      {/* Lista desplegable de negocios - ahora se muestra al hacer focus, incluso sin texto */}
+      {isOpen && !disabled && clienteId && !loading && (
         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
           {filteredNegocios.length > 0 ? (
             filteredNegocios.map((negocio) => (

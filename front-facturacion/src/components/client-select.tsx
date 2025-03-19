@@ -124,8 +124,8 @@ const ClienteSelect = ({
     setSearchTerm(value);
     setIsOpen(true);
 
-    // Si el campo está vacío, limpiamos la selección
-    if (!value.trim()) {
+    // Si el campo está vacío, limpiamos la selección solo si se ha escrito algo antes
+    if (!value.trim() && selectedCliente) {
       onChangeCliente(undefined);
       if (onInputChange) {
         onInputChange("");
@@ -181,8 +181,8 @@ const ClienteSelect = ({
         className="w-full placeholder:text-black"
       />
 
-      {/* Lista desplegable de clientes */}
-      {isOpen && searchTerm && !disabled && (
+      {/* Lista desplegable de clientes - ahora se muestra al hacer focus, incluso sin texto */}
+      {isOpen && !disabled && (
         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
           {filteredClientes.length > 0 ? (
             filteredClientes.map((cliente) => (

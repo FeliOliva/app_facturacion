@@ -1,6 +1,6 @@
 "use client";
 
-import { UserRound, Home, ShoppingBasket, CircleDollarSign, HandCoins, LogOut} from "lucide-react";
+import { UserRound, Home, ShoppingBasket, CircleDollarSign, HandCoins, LogOut, FileUser} from "lucide-react";
 import { useAuthContext } from "../context/AuthContext"; // Importar el hook de autenticación
 import { useRouter } from "next/navigation"; // Importar el hook de navegación
 
@@ -42,7 +42,13 @@ const items = [
     title: "Ventas",
     href: "/ventas",
     icon: CircleDollarSign,
+  },
+  {
+    title: "Resumen de cuenta",
+    href: "/resumen",
+    icon: FileUser,
   }
+
 ];
 
 const footerItems = [

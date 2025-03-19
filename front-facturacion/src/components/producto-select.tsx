@@ -179,7 +179,7 @@ const ProductoSelect = ({
         onChange={handleSearchChange}
         onFocus={handleFocus}
         disabled={disabled}
-        className="w-full"
+        className="w-full placeholder:text-black"
       />
 
       {/* Lista desplegable de productos */}

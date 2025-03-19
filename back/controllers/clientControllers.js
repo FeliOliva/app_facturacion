@@ -3,19 +3,7 @@ const { redisClient } = require("../db");
 
 const getAllClients = async (req, res) => {
     try {
-        const cacheKey = `Allclients`;
-        //Verificar si los datos están en caché
-        const cachedData = await redisClient.get(cacheKey);
-        if (cachedData) {
-            return res.status(200).json(JSON.parse(cachedData)); // Retorna la caché
-        }
-
-        //Consultar la base de datos con Prisma
-        const clientsData = await clientModel.getAllClients();
-
-        //Guardar en Redis con expiración de 10 minutos
-        await redisClient.setEx(cacheKey, 600, JSON.stringify(clientsData));
-
+        const clientsData = await clientModel.getAllClients()
         res.status(200).json(clientsData);
     } catch (error) {
         console.error("Error al obtener clientes:", error);

@@ -1,9 +1,8 @@
-"use client"; // Esto marca el archivo como un componente de cliente
+"use client";
 
-import { useState } from "react"
-import { Clientes, columns } from "./columns"
-// import { DataTable } from "./data-table"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Clientes, columns } from "./columns";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -12,15 +11,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/card";
+import ClienteSelect, { Cliente } from "@/components/client-select";
+import NegocioSelect, { Negocio } from "@/components/negocio-select";
+import ProductoSelect, { Producto } from "@/components/producto-select";
 
 async function getData(): Promise<Clientes[]> {
   return [
@@ -31,24 +25,83 @@ async function getData(): Promise<Clientes[]> {
       email: "m@example.com",
     },
     // ...
-  ]
+  ];
 }
 
-export default function ventas() {
-
+export default function Ventas() {
   // Estado para controlar si la tarjeta está abierta o cerrada
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Estados para cliente y negocio
+  const [selectedCliente, setSelectedCliente] = useState<Cliente | undefined>(
+    undefined
+  );
+  const [clienteId, setClienteId] = useState<string>("");
+
+  const [selectedNegocio, setSelectedNegocio] = useState<Negocio | undefined>(
+    undefined
+  );
+  const [negocioId, setNegocioId] = useState<string>("");
+
+  // Estado para producto
+  const [selectedProducto, setSelectedProducto] = useState<
+    Producto | undefined
+  >(undefined);
+  const [productoId, setProductoId] = useState<string>("");
+
+  // Estado para cantidad
+  const [cantidad, setCantidad] = useState<string>("");
+
+  // Función para manejar el cambio de cliente
+  const handleClienteChange = (cliente: Cliente | undefined) => {
+    setSelectedCliente(cliente);
+    console.log("Cliente seleccionado:", cliente);
+
+    // Reseteamos el negocio cuando cambia el cliente
+    setSelectedNegocio(undefined);
+    setNegocioId("");
+  };
+
+  // Función para manejar el cambio de negocio
+  const handleNegocioChange = (negocio: Negocio | undefined) => {
+    setSelectedNegocio(negocio);
+    console.log("Negocio seleccionado:", negocio);
+  };
+
+  // Función para manejar el cambio de producto
+  const handleProductoChange = (producto: Producto | undefined) => {
+    setSelectedProducto(producto);
+    console.log("Producto seleccionado:", producto);
+  };
+
+  // Función para manejar el cambio de cantidad
+  const handleCantidadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCantidad(e.target.value);
+  };
 
   // Función para alternar el estado de la tarjeta
   const toggleCard = () => {
-    setIsOpen(!isOpen)
-  }
+    setIsOpen(!isOpen);
+
+    // Reseteamos los estados cuando se cierra la tarjeta
+    if (isOpen) {
+      setSelectedCliente(undefined);
+      setClienteId("");
+      setSelectedNegocio(undefined);
+      setNegocioId("");
+      setSelectedProducto(undefined);
+      setProductoId("");
+      setCantidad("");
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
       <section className="container mx-auto py-10">
         <div className="py-5">
-          <Button onClick={toggleCard} className="w-[180px] h-[40px]">{isOpen ? "Cerrar venta" : "+ Crear venta"}</Button>
+          <Button onClick={toggleCard} className="w-[180px] h-[40px]">
+            {isOpen ? "Cerrar venta" : "+ Crear venta"}
+          </Button>
         </div>
 
         {/* Fondo oscuro que aparece cuando la tarjeta se abre */}
@@ -58,53 +111,64 @@ export default function ventas() {
 
         {/* Condición para mostrar la tarjeta solo si isOpen es verdadero */}
         {isOpen && (
-
           <Card className="w-[400px] fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
             <CardHeader>
               <CardTitle>Crear Venta</CardTitle>
-              <CardDescription>Formulario para crear una nueva venta</CardDescription>
+              <CardDescription>
+                Formulario para crear una nueva venta
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="py-2" >Nombre del Cliente</p>
-              <Input placeholder="Nombre del Cliente" className="placeholder:text-placeholder w-[200px] py-2" />
-              <p className="py-2">Seleccione Negocio del cliente</p>
-              <Select>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Nombre del negocio" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="dark">Nombre de negocio</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <p className="py-2">Productos</p>
-              <div className="flex space-x-2">
-                <Input placeholder="Producto" className="placeholder:text-placeholder w-[200px] py-2" />
-                
-                {/* Select de Unidad al lado del Input de Producto */}
-                <Select>
-                  <SelectTrigger className="h-[40px] w-[100px]">
-                    <SelectValue placeholder="Unidad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="dark">Unidad</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <p className="py-2" >Cantidad</p>
-              <Input placeholder="Cantidad" className="placeholder:text-placeholder w-[200px] py-2" />
+              {/* Componente de selección de cliente */}
+              <ClienteSelect
+                value={clienteId}
+                onChangeCliente={handleClienteChange}
+                onInputChange={setClienteId}
+              />
+
+              {/* Componente de selección de negocio */}
+              <NegocioSelect
+                clienteId={clienteId}
+                value={negocioId}
+                onChangeNegocio={handleNegocioChange}
+                onInputChange={setNegocioId}
+                disabled={!clienteId}
+              />
+
+              {/* Componente de selección de producto */}
+              <ProductoSelect
+                value={productoId}
+                onChangeProducto={handleProductoChange}
+                onInputChange={setProductoId}
+                disabled={!negocioId}
+              />
+
+              <p className="py-2">Cantidad</p>
+              <Input
+                placeholder="Cantidad"
+                className="placeholder:text-placeholder w-full py-2"
+                value={cantidad}
+                onChange={handleCantidadChange}
+                type="number"
+                disabled={!productoId}
+              />
             </CardContent>
-            <CardFooter className="flex justify-center py-2">
-              <Button onClick={toggleCard}>Cerrar</Button>
+            <CardFooter className="flex justify-between py-2">
+              <Button variant="outline" onClick={toggleCard}>
+                Cancelar
+              </Button>
+              <Button onClick={toggleCard}>Guardar</Button>
             </CardFooter>
           </Card>
         )}
 
-        <h1 className="text-3xl font-light py-5">Estas son las ventas registradas</h1>
+        <h1 className="text-3xl font-light py-5">
+          Estas son las ventas registradas
+        </h1>
         <div className="container mx-auto py-5">
           {/* <DataTable columns={columns} data={data} /> */}
         </div>
       </section>
     </div>
-  )
+  );
 }

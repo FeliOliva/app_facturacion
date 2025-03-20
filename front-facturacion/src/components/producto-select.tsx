@@ -169,7 +169,6 @@ const ProductoSelect = ({
 
   return (
     <div className="relative" ref={wrapperRef}>
-      <p className="py-2">Seleccione Producto</p>
 
       {/* Campo de búsqueda */}
       <Input
@@ -179,12 +178,12 @@ const ProductoSelect = ({
         onChange={handleSearchChange}
         onFocus={handleFocus}
         disabled={disabled}
-        className="w-full placeholder:text-black"
+        className="w-80 placeholder:text-black"
       />
 
       {/* Lista desplegable de productos */}
       {isOpen && searchTerm && !disabled && (
-        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-10 mt-1 w-80 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
           {filteredProductos.length > 0 ? (
             filteredProductos.map((producto) => (
               <div

@@ -73,14 +73,29 @@ const getEntregaById = async (id) => {
 
 }
 
-const getEntregasByCliente = async (clienteId, limit, page) => {
+const getEntregasByCliente = async (clienteId, limit, page, startDate, endDate, cajaId) => {
     try {
         limit = parseInt(limit) || 10;
         page = parseInt(page) || 1;
 
         const offset = (page - 1) * limit;
+        // Convertir fechas a UTC correctamente
+        const filterStartDate = startDate ? new Date(startDate) : null;
+        const filterEndDate = endDate ? new Date(endDate) : null;
+
+        if (filterEndDate) {
+            filterEndDate.setUTCHours(23, 59, 59, 999); // Asegurar que se incluye todo el día en UTC
+        }
+
+        const whereClause = {
+            clienteId: parseInt(clienteId),
+            estado: 1,
+            ...(filterStartDate && { fechaCreacion: { gte: filterStartDate.toISOString() } }),
+            ...(filterEndDate && { fechaCreacion: { lte: filterEndDate.toISOString() } }),
+            ...(cajaId && { cajaId: parseInt(cajaId) })
+        };
         const entregas = await prisma.entregas.findMany({
-            where: { clienteId: parseInt(clienteId) },
+            where: whereClause,
             skip: offset,
             take: limit,
             include: {
@@ -103,7 +118,7 @@ const getEntregasByCliente = async (clienteId, limit, page) => {
             }
         });
         const totalEntregas = await prisma.entregas.count({
-            where: { clienteId: parseInt(clienteId) }
+            where: whereClause
         });
 
         return {
@@ -118,38 +133,40 @@ const getEntregasByCliente = async (clienteId, limit, page) => {
     }
 };
 
-const getEntregasByNegocio = async (negocioId, limit, page) => {
+const getEntregasByNegocio = async (negocioId, limit, page, startDate, endDate, cajaId) => {
     try {
         limit = parseInt(limit) || 10;
         page = parseInt(page) || 1;
-
         const offset = (page - 1) * limit;
+
+        // Convertir fechas a UTC correctamente
+        const filterStartDate = startDate ? new Date(startDate) : null;
+        const filterEndDate = endDate ? new Date(endDate) : null;
+
+        if (filterEndDate) {
+            filterEndDate.setUTCHours(23, 59, 59, 999); // Asegurar que se incluye todo el día en UTC
+        }
+
+        const whereClause = {
+            negocioId: parseInt(negocioId),
+            estado: 1,
+            ...(filterStartDate && { fechaCreacion: { gte: filterStartDate.toISOString() } }),
+            ...(filterEndDate && { fechaCreacion: { lte: filterEndDate.toISOString() } }),
+            ...(cajaId && { cajaId: parseInt(cajaId) })
+        };
+
         const entregas = await prisma.entregas.findMany({
-            where: { negocioId: parseInt(negocioId) },
+            where: whereClause,
             skip: offset,
             take: limit,
             include: {
-                cliente: {
-                    select: {
-                        nombre: true,
-                        apellido: true
-                    }
-                },
-                negocio: {
-                    select: {
-                        nombre: true
-                    }
-                },
-                metodoPago: {
-                    select: {
-                        nombre: true
-                    }
-                }
+                cliente: { select: { nombre: true, apellido: true } },
+                negocio: { select: { nombre: true } },
+                metodoPago: { select: { nombre: true } }
             }
         });
-        const totalEntregas = await prisma.entregas.count({
-            where: { negocioId: parseInt(negocioId) }
-        });
+
+        const totalEntregas = await prisma.entregas.count({ where: whereClause });
 
         return {
             entregas,

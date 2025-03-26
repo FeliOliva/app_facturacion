@@ -62,7 +62,7 @@ const getEntregaById = async (req, res) => {
 const getEntregaByCliente = async (req, res) => {
     try {
         const { clienteId } = req.params;
-        const { page, limit } = req.query;
+        const { page, limit, startDate, endDate, cajaId } = req.query;
         const pageNumber = parseInt(page) || 1;
         const limitNumber = parseInt(limit) || 10;
 
@@ -70,14 +70,22 @@ const getEntregaByCliente = async (req, res) => {
             return res.status(400).json({ error: "Parámetros de paginación no válidos" });
         }
 
-        const cacheKey = `EntregasCliente:${clienteId}`;
-        const cachedData = await redisClient.get(cacheKey);
+        // Convertir fechas a formato Date si existen
+        const filterStartDate = startDate ? new Date(startDate) : null;
+        let filterEndDate = endDate ? new Date(endDate) : null;
 
+        // Si hay un endDate, ajustarlo para incluir todo el día hasta las 23:59:59
+        if (filterEndDate) {
+            filterEndDate.setHours(23, 59, 59, 999);
+        }
+
+        const cacheKey = `EntregasCliente:${clienteId}:${startDate || ''}:${endDate || ''}:${cajaId || ''}:${pageNumber}:${limitNumber}`;
+        const cachedData = await redisClient.get(cacheKey);
         if (cachedData) {
             return res.status(200).json(JSON.parse(cachedData));
         }
 
-        const entregasData = await entregaModel.getEntregasByCliente(clienteId, limitNumber, pageNumber);
+        const entregasData = await entregaModel.getEntregasByCliente(clienteId, limitNumber, pageNumber, filterStartDate, filterEndDate, cajaId);
         await redisClient.setEx(cacheKey, 600, JSON.stringify(entregasData));
 
         res.json(entregasData);
@@ -90,7 +98,8 @@ const getEntregaByCliente = async (req, res) => {
 const getEntregasByNegocio = async (req, res) => {
     try {
         const { negocioId } = req.params;
-        const { page, limit } = req.query;
+        const { page, limit, startDate, endDate, cajaId } = req.query;
+
         const pageNumber = parseInt(page) || 1;
         const limitNumber = parseInt(limit) || 10;
 
@@ -98,14 +107,23 @@ const getEntregasByNegocio = async (req, res) => {
             return res.status(400).json({ error: "Parámetros de paginación no válidos" });
         }
 
-        const cacheKey = `EntregasNegocio:${negocioId}`;
+        // Convertir fechas a formato Date si existen
+        const filterStartDate = startDate ? new Date(startDate) : null;
+        let filterEndDate = endDate ? new Date(endDate) : null;
+
+        // Si hay un endDate, ajustarlo para incluir todo el día hasta las 23:59:59
+        if (filterEndDate) {
+            filterEndDate.setHours(23, 59, 59, 999);
+        }
+
+        const cacheKey = `EntregasNegocio:${negocioId}:${startDate || ''}:${endDate || ''}:${cajaId || ''}:${pageNumber}:${limitNumber}`;
         const cachedData = await redisClient.get(cacheKey);
 
         if (cachedData) {
             return res.status(200).json(JSON.parse(cachedData));
         }
 
-        const entregasData = await entregaModel.getEntregasByNegocio(negocioId, limitNumber, pageNumber);
+        const entregasData = await entregaModel.getEntregasByNegocio(negocioId, limitNumber, pageNumber, filterStartDate, filterEndDate, cajaId);
         await redisClient.setEx(cacheKey, 600, JSON.stringify(entregasData));
 
         res.json(entregasData);
@@ -115,16 +133,17 @@ const getEntregasByNegocio = async (req, res) => {
     }
 };
 
+
 const addEntrega = async (req, res) => {
     try {
-        const { nroEntrega, monto, clienteId, negocioId, metodoPagoId } = req.body;
+        const { nroEntrega, monto, clienteId, negocioId, metodoPagoId, cajaId } = req.body;
         if (!nroEntrega || !monto || !clienteId || !negocioId || !metodoPagoId) {
             return res.status(400).json({ error: "Faltan campos obligatorios" });
         }
 
         await clearEntregaCache(); // Eliminar caché después de agregar
 
-        const newEntrega = await entregaModel.addEntrega({ nroEntrega, monto, clienteId, negocioId, metodoPagoId });
+        const newEntrega = await entregaModel.addEntrega({ nroEntrega, monto, clienteId, negocioId, metodoPagoId, cajaId });
         res.json(newEntrega);
     } catch (error) {
         console.error("Error al agregar la entrega:", error);

@@ -35,12 +35,13 @@ model Negocio {
 }
 
 model Caja {
-  id            Int       @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   nombre        String
-  fechaCreacion DateTime  @default(now())
-  estado        Int       @default(1)
+  fechaCreacion DateTime   @default(now())
+  estado        Int        @default(1)
   usuarios      Usuario[]
   ventas        Venta[]
+  Entregas      Entregas[]
 }
 
 model TipoUnidad {
@@ -146,9 +147,11 @@ model Entregas {
   clienteId     Int
   negocioId     Int
   metodoPagoId  Int?
+  cajaId        Int?
   cliente       Cliente     @relation(fields: [clienteId], references: [id])
   negocio       Negocio     @relation(fields: [negocioId], references: [id])
   metodoPago    MetodoPago? @relation(fields: [metodoPagoId], references: [id])
+  caja          Caja?       @relation(fields: [cajaId], references: [id])
 }
 
 model NotaCredito {
